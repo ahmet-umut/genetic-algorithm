@@ -1,23 +1,39 @@
-from jax import numpy,random,jit
-numpy.set_printoptions(formatter={"bool": lambda x: "i" if x else ":"})
+from bitstring import BitArray as bitarray
+import random
 
-key = random.PRNGKey(0)
+class DNA(bitarray):
+    def __init__(self, bitsize):
+        super().__init__(bitsize)
+        for i in range(bitsize):
+            self[i] = random.randrange(2)
+    def mutate(self):
+        self[random.randrange(len(self))] = not self[random.randrange(len(self))]
+    def __getitem__(self, key):
+        key = key % len(self)
+        return super().__getitem__(key)
 
-@jit
-def mutate(array, key):  # invert a random element of the array
-    key, = random.split(key, 1)
-    idx = random.randint(key, shape=(1,), minval=0, maxval=array.shape[0])
-    array = array.at[idx].set(~array[idx])
-    return array,key
+random.seed(31)
+
+bitsize = 9
+best = DNA(bitsize)
+#initialize with random bit string
+for i in range(bitsize):
+    best[i] = random.randrange(2)
+print(best)
 
 step=0
-best = random.bernoulli(key, shape=(9,))
-bt_count = numpy.sum(best)
-while not best.all():
+one_count_best = best.count(1)
+while one_count_best != bitsize:
     print(best, step:=step+1)
-    candidae,key = mutate(best,key)
-    ni_count = numpy.sum(candidae)
-    if ni_count > bt_count:
-        best = candidae
-        bt_count = ni_count
+    candidate = best.copy()
+    candidate[random.randrange(bitsize)] = not candidate[random.randrange(bitsize)]
+    ni_count = candidate.count(1)
+    """
+    if ni_count > one_count_best:
+        best = candidate
+        one_count_best = ni_count
+    """
+    best = candidate
+    one_count_best = ni_count
+
 print(best)
