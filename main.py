@@ -1,22 +1,27 @@
 from bitstring import BitArray as bitarray
 import random2
 
+random2.seed()
+
 class DNA(bitarray):
     def __init__(self, *args):
         super().__init__(*args)
-        for i in range(len(self)):
-            self[i] = random2.bit()
     def mutate(self):
-        self[random2.rrange(len(self))] = not self[random2.rrange(len(self))]
+        index = random2.rrange(len(self))
+        self[index] = not self[index]
     def __getitem__(self, key):
         key = key % len(self)
         return super().__getitem__(key)
     def __copy__(self):
         return DNA(super().__copy__())
+    def randomize(self):
+        for i in range(len(self)):
+            self[i] = random2.rrange(2)
 
 
 bitsize = 9
 best = DNA(bitsize)
+best.randomize()
 print(best)
 
 step=0
@@ -37,8 +42,7 @@ while one_count_best != bitsize:
 print(best)
 
 """
-
-for i in range(99):
+for i in range(9):
     print(random2.rrange(9))
 exit()
 
